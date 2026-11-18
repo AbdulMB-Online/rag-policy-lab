@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "company": "Northstar Analytics",
+  "documents": [
+    {
+      "document_id": "remote-work-v1.0",
+      "policy_id": "remote-work",
+      "title": "Remote Work Policy",
+      "version": "1.0",
+      "effective_date": "2025-01-01",
+      "status": "superseded",
+      "source": "data/policies/remote-work-v1.0.md",
+      "supersedes": null
+    },
+    {
+      "document_id": "remote-work-v2.0",
+      "policy_id": "remote-work",
+      "title": "Remote Work Policy",
+      "version": "2.0",
+      "effective_date": "2026-01-01",
+      "status": "current",
+      "source": "data/policies/remote-work-v2.0.md",
+      "supersedes": "remote-work-v1.0"
+    },
+    {
+      "document_id": "expense-reimbursement-v1.0",
+      "policy_id": "expense-reimbursement",
+      "title": "Expense Reimbursement Policy",
+      "version": "1.0",
+      "effective_date": "2026-01-01",
+      "status": "current",
+      "source": "data/policies/expense-reimbursement-v1.0.md",
+      "supersedes": null
+    },
+    {
+      "document_id": "pto-v1.0",
+      "policy_id": "pto",
+      "title": "PTO Policy",
+      "version": "1.0",
+      "effective_date": "2026-01-01",
+      "status": "current",
+      "source": "data/policies/pto-v1.0.md",
+      "supersedes": null
+    },
+    {
+      "document_id": "information-security-v1.0",
+      "policy_id": "information-security",
+      "title": "Information Security Policy",
+      "version": "1.0",
+      "effective_date": "2026-01-01",
+      "status": "current",
+      "source": "data/policies/information-security-v1.0.md",
+      "supersedes": null
+    }
+  ]
+}
