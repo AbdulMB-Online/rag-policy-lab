@@ -82,7 +82,7 @@ def check_structure(document, text):
     """Check body length, heading hierarchy, section IDs, and procedural steps."""
     prefix, title, _ = POLICIES[document["policy_id"]]
     words = count_words(text)
-    require(500 <= words <= 800, f"Body has {words} words; expected 500–800")
+    require(1200 <= words <= 1500, f"Body has {words} words; expected 1200–1500")
     lines = text.splitlines()
     require(all(re.fullmatch(r"#{1,3} .+", line) for line in lines if line.lstrip().startswith("#")),
             "Headings must use H1/H2/H3 Markdown syntax")

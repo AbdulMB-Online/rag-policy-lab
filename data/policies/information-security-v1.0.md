@@ -13,6 +13,15 @@ Expense Reimbursement, and PTO policies remain responsible for scheduling,
 reimbursement, and leave decisions. Security approval does not replace approvals
 required under those policies.
 
+Protection applies to information in documents, messages, screenshots, meeting
+conversations, and exported reports, not only to files stored on a company
+server. Employees should consider who can see or hear information while they
+work and which approved system is responsible for the record. A convenient
+tool or a familiar recipient does not by itself make a transfer appropriate.
+When an activity involves scheduling, spending, and information handling,
+obtain each relevant approval; no single approval covers every aspect of the
+activity.
+
 ## SEC-02: Roles and eligibility
 
 Employees protect their accounts, follow handling rules, and report suspected
@@ -25,6 +34,15 @@ incidents, and records security exceptions. People Operations owns leave records
 Finance owns expense records. Access requires a documented business need and data
 owner approval. A manager's position alone does not grant access to every
 employee's personal information.
+
+Access requests should identify the employee, the work requiring access, the
+specific information or service, and the expected duration. Data owners
+should approve the minimum scope needed for that task rather than an entire
+department's records by default. IT Security implements the approved access
+and records changes. Managers must request removal when an employee changes
+roles or no longer needs the information, even if the account itself remains
+active. Employees must not use a colleague's account while waiting for their
+own access request to be reviewed.
 
 ## SEC-03: Policy rules
 
@@ -48,6 +66,15 @@ availability without private leave details. Redact unrelated account information
 from expense evidence and exclude complete payment card numbers. If a
 classification is unclear, ask the data owner before sharing.
 
+Before sending a document, check its contents as well as its filename or
+folder label. A general team document becomes Confidential if it contains
+individual leave details or customer records. Remove that material only when
+the data owner confirms the remaining information can be handled separately.
+Public information still requires an approved release decision; employees
+cannot make an internal draft Public simply by posting it online. A link to
+an approved company service is preferable to an uncontrolled copy, but the
+link's permissions must still restrict access to the authorized recipients.
+
 ### SEC-03.2: Devices and account access
 
 Use company-managed devices for company work. IT Security enables device
@@ -62,6 +89,22 @@ process company information.
   remotely. Use only services approved by IT Security for storage and transfer.
 - Keep confidential conversations and screens inaccessible to visitors and
   household members. Do not forward company files to personal email accounts.
+
+Check the selected recipient and sharing permissions before sending a message
+or granting access. Avoid broad links that allow anyone with the link to open
+Confidential material. Company approval of a service does not approve every
+possible setting within it. Employees must not connect unapproved applications
+to company accounts or upload company information to an external assistant,
+file conversion site, or personal storage account without the required
+security and data owner approvals. Browser access to an approved service is
+still company work and must use a company-managed device.
+
+Install security updates through the managed process and contact IT support
+when an update or control prevents normal work. Do not disable encryption,
+screen locking, or authentication safeguards to meet a deadline. If an
+authentication prompt was not initiated by the employee, reject it and report
+the activity through SEC-04. If a device is lost, do not delay reporting while
+searching for it or attempting a personal recovery procedure.
 
 ## SEC-04: Procedures
 
@@ -85,6 +128,30 @@ required follow-up with the data owner. Employees should also inform their
 manager when an incident prevents normal work, without delaying the security
 report.
 
+A useful report distinguishes what was observed from what is suspected. State
+when the issue was discovered, which managed device or account was involved,
+and whether company information may have been opened, sent, or changed. If
+the employee does not know whether a recipient accessed a file, say that
+access is unknown rather than assuming no exposure occurred. Include an
+existing message identifier or approved system reference when available, but
+do not copy Confidential records into an unrestricted channel merely to
+demonstrate the problem.
+
+The incident portal and telephone fallback are reporting routes, not a
+requirement to complete an investigation before contacting IT Security. An
+employee locked out of company systems should use the directory help desk
+route and explain the access problem. A manager may help coordinate work
+coverage, but cannot cancel the reporting requirement or decide that a
+suspected exposure is too minor to record. Follow the incident owner's
+instructions on preserving evidence and restoring access.
+
+For a misdirected message, report the intended recipient, actual recipient,
+and information involved without forwarding the message to additional
+people. For suspected phishing, do not reply to the sender or test a link.
+IT Security coordinates any recipient contact, account containment, and
+necessary follow-up. Employees should provide updates when new facts become
+available and keep incident details within the restricted reporting process.
+
 ## SEC-05: Exceptions and escalation
 
 Request a security exception from IT Security before using an alternative
@@ -95,6 +162,13 @@ shared credentials, or bypassing multifactor authentication.
 
 Escalate unresolved handling questions to the IT Security lead. Manager approval
 alone never waives security controls or incident reporting.
+
+The exception record must state which workflow is approved, which controls
+remain in place, who may use it, and when it ends. An expired exception does
+not authorize continued use while a renewal is being reviewed. If a proposed
+workaround would violate a control that this policy does not permit waiving,
+IT Security must identify a compliant alternative instead. Approval for an
+expense, a remote day, or leave coverage is not a security exception.
 
 ## SEC-06: Ownership and review
 

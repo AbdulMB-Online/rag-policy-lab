@@ -1,7 +1,7 @@
 # Stage 1: Corpus creation
 
-Status: In progress. Corpus, manifest, validator, and tests are implemented and
-passing. The reusable documentation template is pending.
+Status: Corpus revision complete. All five expanded policies pass validation;
+all 30 validator tests pass. Latest results are recorded below.
 
 ## Objective and scope
 
@@ -16,21 +16,24 @@ CI implementation belong to later stages.
 | --- | --- |
 | Use Northstar Analytics, a fictional US software company. | Gives all documents a consistent organizational setting without using real company policies. |
 | Create four policy types across five Markdown files. | Remote Work, Expense Reimbursement, PTO, and Information Security require four current documents; the outdated Remote Work version adds a fifth file. |
-| Make every document 500–800 words; target 600–700. | Meets the assignment's length requirement, including the outdated version, with room for revision. |
-| Count body words in paragraphs, lists, and table headers/cells, excluding headings, metadata, and Markdown syntax. | Keeps the 500–800-word requirement reproducible when policies contain tables. |
+| Make every document 1,200–1,500 body words. | User-approved extension on 2026-11-18 replaces the assignment's original 500–800-word range to provide longer material for chunking experiments. |
+| Count body words in paragraphs, lists, and table headers/cells, excluding headings, metadata, and Markdown syntax. | Keeps the revised word-count requirement reproducible when policies contain tables. |
+| Expand explanations, examples, handoffs, and exception procedures while retaining existing policy facts. | Provides substantive content and longer sections without changing approvals, limits, or the planted conflict. |
 | Author the synthetic policy text directly during implementation. | Uses AI-generated source material without adding programmatic LLM calls to Stage 1. |
 | Use stable section identifiers, such as `RW-01` and `SEC-01`. | Supports later chunk attribution, exact-match retrieval examples, and evaluation references. |
 | Preserve a consistent H1/H2/H3 hierarchy and distinct paragraph, list, and table blocks. | Provides explicit boundaries for later experiments with structured chunking. |
 | Include two tables in Expense Reimbursement and one each in PTO and Information Security. | Provides varied table content for later chunking experiments without adding more version conflicts. |
 | Keep structured metadata authoritative in `data/manifest.json`. | Avoids maintaining duplicate structured metadata in policy files. Markdown titles will identify the policy and version. |
-| Retain both Remote Work versions in the manifest. | Preserves the deliberate source-data conflict for diagnosis in Stage 7. |
+| Retain both Remote Work versions in the manifest. | Preserves the deliberate source-data conflict for diagnosis in Part 6. |
 | Keep the validator dependency-free and stop at the first error. | Makes a small lab utility easier to explain and maintain; failures identify the check and document where applicable. |
-| Use pytest for focused validator tests. | Confirms valid input passes and deliberately broken input fails; these tests are separate from the Stage 6 retrieval and answer evaluation harness. |
+| Use pytest for focused validator tests. | Confirms valid input passes and deliberately broken input fails; these tests are separate from the Part 5 retrieval and answer evaluation harness. |
 | Create and review one file at a time. | The user must approve each file and confirm sufficient clarity before work moves to another file. |
+| Allow multiple existing files to change together for this corpus/model revision only. | Explicit user exception permits coordinated policy, validation, and model updates; the usual review workflow resumes afterward. |
 
 ## File inventory
 
-All files below exist except `docs/stage-template.md`.
+All files below exist. The reusable documentation outline is included in this
+file; no separate template file is needed.
 
 | Path | Purpose |
 | --- | --- |
@@ -43,7 +46,6 @@ All files below exist except `docs/stage-template.md`.
 | `data/manifest.json` | Metadata and source paths for all five document versions. |
 | `scripts/validate_corpus.py` | Standard-library-only corpus validation. |
 | `tests/test_validate_corpus.py` | 30 pytest cases for valid and invalid corpus inputs. |
-| `docs/stage-template.md` | Pending: reusable engineering documentation template for Stages 2–8. |
 
 ## Metadata contract
 
@@ -111,8 +113,9 @@ The implemented table inventory is:
 Tables contain substantive policy facts, with at least three data rows and
 three columns each. Surrounding prose must agree with their values. The body-word
 count includes table header and cell text and list item text; it excludes heading
-lines, table delimiters, pipes, and list markers. Policies remain 500–800 body
-words, targeting 600–700, with enough explanatory prose to establish context.
+lines, table delimiters, pipes, and list markers. Each policy contains
+1,200–1,500 body words. Longer procedural sections exercise actual chunk
+splitting; shorter sections remain focused rather than being padded to a cap.
 
 This structure prepares later comparisons of fixed-size chunks, chunks based on
 heading boundaries, parent/child sections, whole-table chunks, and table-row
@@ -139,9 +142,9 @@ version metadata will also differ. Explanations of the planted defect stay in
 engineering documentation, outside the policy prose. Both versions remain
 available for later indexing; Stage 1 does not implement runtime version filters.
 
-In Stage 7, demonstrate the flawed answer, inspect the retrieved sources, and
+In Part 6, demonstrate the flawed answer, inspect the retrieved sources, and
 trace the failure to the conflicting source versions. Actual retrieval behavior
-and diagnosis evidence remain pending until those stages are implemented.
+and diagnosis evidence remain pending until that part is implemented.
 
 ## Policy content decisions
 
@@ -182,44 +185,47 @@ inventory; changing that inventory requires updating the validation rules.
 Commands run from the repository root:
 
 ```sh
-python3 -B scripts/validate_corpus.py
-python3 -B -m pytest -q -p no:cacheprovider
+.venv/bin/python -B scripts/validate_corpus.py
+.venv/bin/python -B -m pytest -q -p no:cacheprovider
 ```
 
-Results recorded on 2026-11-18 with Python 3.15.0 and pytest 9.2.0:
+Results recorded on 2026-11-18 with Python 3.12.16 and pytest 9.2.0:
 
 | Document | Body words | Tables | Result |
 | --- | --- | --- | --- |
-| Remote Work v1.0 | 624 | 0 | PASS |
-| Remote Work v2.0 | 624 | 0 | PASS |
-| Expense Reimbursement v1.0 | 663 | 2 | PASS |
-| PTO v1.0 | 688 | 1 | PASS |
-| Information Security v1.0 | 710 | 1 | PASS |
+| Remote Work v1.0 | 1,405 | 0 | PASS |
+| Remote Work v2.0 | 1,405 | 0 | PASS |
+| Expense Reimbursement v1.0 | 1,397 | 2 | PASS |
+| PTO v1.0 | 1,397 | 1 | PASS |
+| Information Security v1.0 | 1,418 | 1 | PASS |
 
 Corpus validation exited with status 0. Metadata, heading structure, table
 structure, and version relationships passed. The expected three-day versus
 two-day conflict remains intact; no other Remote Work body differences were
-found. Information Security exceeds the preferred 600–700-word target but meets
-the required 500–800-word range.
+found. All five policies meet the revised 1,200–1,500-body-word range. Their
+existing IDs, versions, effective dates, statuses, source paths, and tables
+remain unchanged, so the manifest required no edits.
 
 Pytest exited with status 0: **30 passed**. Tests cover the real corpus, invalid
-metadata, duplicate IDs, Markdown word counting, 499/500/800/801-word boundaries,
+metadata, duplicate IDs, Markdown word counting, 1199/1200/1500/1501-word boundaries,
 broken headings and procedures, malformed tables, altered Remote Work rules,
 missing/unregistered sources, invalid JSON, and command execution from another
 working directory. Negative tests modify in-memory strings or temporary copies;
-the real policies and planted conflict remain unchanged. No corpus corrections
-were required by the validator or final test run.
+the real policies and planted conflict remain unchanged by tests. The validator
+and its four boundary-test cases now enforce the revised length range.
 
 Manual review checked that remote work remains working time, PTO does not create
 expense entitlements, expense and leave records use the approved portals, and
 security rules apply across work locations. No additional policy contradiction
 was identified in that review. Automated structural checks do not prove semantic
 consistency. Retrieval recall and generated-answer accuracy remain unmeasured
-until Stage 6; these 30 tests are corpus validation tests.
+until Part 5; these 30 tests are corpus validation tests. Full-corpus chunking
+and BGE embedding checks for the expanded sources are recorded in
+`docs/02-build-pipeline.md`.
 
 ## Documentation template for later stages
 
-`docs/stage-template.md` will establish these sections:
+Use this outline inside each stage's documentation file:
 
 1. Objective.
 2. Scope.
@@ -230,23 +236,19 @@ until Stage 6; these 30 tests are corpus validation tests.
 7. Limitations.
 8. Completion criteria.
 
-Create each remaining stage document only when its stage begins. Follow the
-approved order: minimal embed-store-retrieve loop; basic RAG; hybrid retrieval;
-cross-encoder reranking; evaluation; data quality diagnosis and source
-attribution; CI and submission.
+Create each remaining document only when its part begins. Follow the approved
+order: source documents; pipeline, including the minimal prerequisite; hybrid
+retrieval; reranking; evaluation; data quality diagnosis; source attribution;
+CI and submission. No additional template file is planned.
 
 ## Completion criteria and handoff
 
-Stage 1 is complete when all five policy files satisfy the content and word-count
-constraints, the manifest describes them accurately, corpus validation passes,
-manual review finds no unintended contradictions, the heading/body structure and
-table inventory meet the agreed contract, and both documentation files are
-complete. This log must contain actual validation evidence before completion is
-claimed.
+The revised corpus meets its content and word-count constraints, matches the
+manifest, passes structural validation, and preserves the intended conflict.
+The reusable documentation outline is recorded above. No optional files were
+created for this revision.
 
-Remaining item: create and review `docs/stage-template.md`, then record Stage 1
-completion in this log through the same one-file review process.
-
-Stage 2 will prove an embed-store-retrieve loop using two known pieces of text
-before the full corpus pipeline is built. No Stage 2 implementation is authorized
-by the Stage 1 scope.
+Part 2's minimal embed-store-retrieve prerequisite already passed before the
+full build. Ingestion, chunking, and embeddings are implemented; persistent
+storage, full-corpus retrieval, and generation remain next. The present
+revision does not implement those remaining components.
