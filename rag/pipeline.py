@@ -8,6 +8,7 @@ from openai import APIError
 from rag.chunking import chunk_documents
 from rag.embeddings import embed_texts, load_model
 from rag.generation import generate_answer
+from rag.hybrid_retrieval import hybrid_retrieve
 from rag.ingestion import load_documents
 from rag.retrieval import retrieve
 from rag.vector_store import DB_PATH, get_collection, store_chunks
@@ -33,13 +34,18 @@ def main():
     ask = commands.add_parser("ask", help="Answer a question using retrieved policy chunks")
     ask.add_argument("question", help="Natural-language question about company policy")
     ask.add_argument("--top-k", type=int, default=4, help="Number of context chunks (default: 4)")
+    ask.add_argument(
+        "--retrieval", choices=("hybrid", "vector"), default="hybrid",
+        help="Retrieval method (default: hybrid)",
+    )
     args = parser.parse_args()
     try:
         if args.command == "index":
             count = index_corpus()
             print(f"Indexed {count} chunks in {DB_PATH}")
         else:
-            chunks = retrieve(args.question, top_k=args.top_k)
+            search = hybrid_retrieve if args.retrieval == "hybrid" else retrieve
+            chunks = search(args.question, top_k=args.top_k)
             print(generate_answer(args.question, chunks))
     except (ValueError, OSError) as error:
         parser.error(str(error))
