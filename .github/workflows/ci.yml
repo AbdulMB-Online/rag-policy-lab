@@ -33,9 +33,10 @@ jobs:
       - name: Index the full corpus
         run: python -B -m rag.pipeline index
 
-      - name: Check full-corpus retrieval without LLM calls
+      - name: Compare vector and hybrid retrieval without LLM calls
         run: |
           python -B - <<'PY'
+          from rag.hybrid_retrieval import hybrid_retrieve
           from rag.retrieval import retrieve
 
           cases = [
@@ -44,19 +45,32 @@ jobs:
               ("What should I do if I lose my company laptop?", "information-security", "SEC-04"),
               ("How many days can I work remotely per calendar week?", "remote-work", "RW-03.1"),
           ]
-          for question, policy, section in cases:
-              hits = retrieve(question, top_k=4)
-              assert any(
-                  hit["metadata"]["policy_id"] == policy
-                  and hit["metadata"]["section_id"] == section
-                  for hit in hits
-              ), f"Expected {policy} section {section} in the top 4"
-              if policy == "remote-work":
-                  versions = {
-                      hit["metadata"]["version"] for hit in hits
-                      if hit["metadata"]["policy_id"] == policy
+          for search in (retrieve, hybrid_retrieve):
+              for question, policy, section in cases:
+                  hits = search(question, top_k=4)
+                  assert any(
+                      hit["metadata"]["policy_id"] == policy
                       and hit["metadata"]["section_id"] == section
-                  }
-                  assert versions == {"1.0", "2.0"}, "Both Remote Work versions must remain retrievable"
-              print(f"PASS: {question}")
+                      for hit in hits
+                  ), f"{search.__name__}: expected {policy} section {section} in the top 4"
+                  if policy == "remote-work":
+                      versions = {
+                          hit["metadata"]["version"] for hit in hits
+                          if hit["metadata"]["policy_id"] == policy
+                          and hit["metadata"]["section_id"] == section
+                      }
+                      assert versions == {"1.0", "2.0"}, "Both Remote Work versions must remain retrievable"
+                  print(f"PASS [{search.__name__}]: {question}")
+
+          def table_rank(hits):
+              return next((rank for rank, hit in enumerate(hits, 1)
+                           if hit["metadata"].get("table_id") == "PTO-T01"), None)
+
+          vector_rank = table_rank(retrieve("PTO-T01", top_k=4))
+          hybrid_rank = table_rank(hybrid_retrieve("PTO-T01", top_k=4))
+          assert hybrid_rank == 1, "Hybrid should select the requested PTO table first"
+          assert vector_rank is None or hybrid_rank < vector_rank, "Review the PTO-T01 improvement demonstration"
+          print(f"PASS PTO-T01: vector rank {vector_rank or '>4'}; hybrid rank {hybrid_rank}")
+          print(f"Hit@1: vector={int(vector_rank == 1)}, hybrid={int(hybrid_rank == 1)}")
+          print(f"Hit@4: vector={int(vector_rank is not None)}, hybrid={int(hybrid_rank is not None)}")
           PY
