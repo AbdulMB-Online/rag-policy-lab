@@ -1,9 +1,9 @@
 # Part 3: Hybrid retrieval
 
-Status: Implemented and locally verified on 2026-11-19. Keyword/RRF retrieval,
+Status: Implementation and CI verified on 2026-11-19. Keyword/RRF retrieval,
 40 focused test cases, CLI mode selection, and hybrid CI checks are in place.
-All 70 tests pass locally. Hosted verification of the Part 3 changes is pending
-a feature-branch push and PR; Part 3 is not yet marked complete.
+All 70 tests pass locally and on GitHub's hosted Linux runner. Part 3 is ready
+for review and manual merge in [PR #3](https://github.com/AbdulMB-Online/rag-policy-lab/pull/3).
 
 ## Objective and scope
 
@@ -117,7 +117,7 @@ was preserved. No live hybrid-generated answer is claimed from those checks.
 | `rag/hybrid_retrieval.py` | Candidate gathering, deduplication, and RRF. | Implemented; terminal checks pass |
 | `tests/test_hybrid_retrieval.py` | Focused tests for keyword boundaries, ranking, fusion, and distinct source versions. | Implemented; 40 cases pass locally |
 | `rag/pipeline.py` | Select `--retrieval hybrid\|vector`; default to hybrid. | Implemented; local routing checks pass |
-| `.github/workflows/ci.yml` | Run focused tests and compare real vector/hybrid retrieval after indexing. | Extended; local checks pass, hosted run pending |
+| `.github/workflows/ci.yml` | Run focused tests and compare real vector/hybrid retrieval after indexing. | Extended; local and hosted checks pass |
 
 No extra configuration file, benchmark script, or third-party keyword library is
 planned. Read-only comparison snippets can inspect the component functions.
@@ -248,21 +248,32 @@ Hit@1: vector=0, hybrid=1
 Hit@4: vector=1, hybrid=1
 ```
 
-Actionlint 1.7.12, YAML structure checks, and shell syntax checks passed. These
-results used the local macOS environment and cached BGE model. The updated
-workflow has not yet run on a hosted GitHub runner; passing Part 2 CI is not
-substituted for that verification. No workflow secrets or Foundry calls are
-needed. If a future model/corpus change removes this demonstration's measured
-gain, the comparison assertion deliberately requests review of the example.
+Actionlint 1.7.12, YAML structure checks, and shell syntax checks passed locally
+using the macOS environment and cached BGE model. The Part 3 code commit
+`2da76f06c8423e1f3c59e7efebf23d8a238bda78` then passed both hosted runs:
 
-## Remaining verification
+- [Push CI](https://github.com/AbdulMB-Online/rag-policy-lab/actions/runs/44519282505).
+- [PR CI](https://github.com/AbdulMB-Online/rag-policy-lab/actions/runs/44519389546).
 
-Publish the Part 3 changes on a feature branch after review and confirm the
-updated hosted workflow passes before merging. Keep the measured comparison
-and its limitations in the PR description. Live answer checks can run from the
-user's terminal; this assistant runtime still has the previously diagnosed
-Foundry connection limitation. Systematic answer accuracy and the fixed
-evaluation harness remain Part 5 work.
+The PR job logs confirmed **70 passed**, **2/2 minimal retrieval questions**,
+**49 indexed chunks**, all vector/hybrid source-inclusion checks, and the same
+PTO-T01 result: vector rank **4**, hybrid rank **1**, Hit@1 **0 to 1**, Hit@4
+**1 for both**. These are results for the actual Part 3 code, not the older
+Part 2 workflow. The links identify the tested revision; PR checks show the
+latest revision's status.
+
+No workflow secrets or Foundry calls are needed. If a future model/corpus change
+removes this demonstration's measured gain, the comparison assertion
+deliberately requests review of the example.
+
+## Review and remaining limitations
+
+The Part 3 changes are published on `feat/part-3-hybrid-retrieval` in PR #3 for
+manual review and merge. Hosted checks for the code commit passed as recorded
+above. The PR description includes the measured comparison and its limitations.
+Live answer checks can run from the user's terminal; this assistant runtime
+still has the previously diagnosed Foundry connection limitation. Systematic
+answer accuracy and the fixed evaluation harness remain Part 5 work.
 
 ## Completion criteria and handoff
 
@@ -272,9 +283,9 @@ at least one measured same-cutoff improvement, tests and CI pass, and this log
 contains the results and limitations. Preserve the original policy conflict.
 
 The implementation, measured improvement, focused tests, CLI integration, and
-CI extension are complete locally. Part 3 awaits hosted CI and PR review before
-being marked complete. Next after this log review: prepare the Part 3 feature
-branch and PR when requested, then verify its hosted checks.
+hosted CI requirements are satisfied. Part 3 is ready for the user's PR review
+and merge. Plan Part 4's cross-encoder reranking after that review, following
+the same one-file workflow.
 
 ## References
 
