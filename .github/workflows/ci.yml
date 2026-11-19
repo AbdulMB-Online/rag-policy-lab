@@ -74,3 +74,44 @@ jobs:
           print(f"Hit@1: vector={int(vector_rank == 1)}, hybrid={int(hybrid_rank == 1)}")
           print(f"Hit@4: vector={int(vector_rank is not None)}, hybrid={int(hybrid_rank is not None)}")
           PY
+
+      - name: Check cross-encoder reranking without LLM calls
+        run: |
+          python -B - <<'PY'
+          from math import isfinite
+
+          from rag.hybrid_retrieval import hybrid_retrieve
+          from rag.reranking import MODEL, rerank
+
+          controls = [
+              {"id": "unrelated", "text": "Company laptops must lock automatically after five minutes.", "metadata": {}},
+              {"id": "relevant", "text": "Employees earn 10 hours of PTO for each completed month of employment.", "metadata": {}},
+          ]
+          best = rerank("How many hours of PTO do I earn each month?", controls, top_k=1)
+          assert best[0]["id"] == "relevant", "Reranker must promote the relevant passage"
+          print(f"PASS [{MODEL}]: relevant passage promoted from rank 2 to 1")
+
+          cases = [
+              ("What is the daily meal reimbursement limit during business travel?", "expense-reimbursement", "EXP-03.1"),
+              ("How many hours of PTO do I earn for each completed month?", "pto", "PTO-03.1"),
+              ("What should I do if I lose my company laptop?", "information-security", "SEC-04"),
+          ]
+          for question, policy, section in cases:
+              candidates = hybrid_retrieve(question, top_k=12)
+              hits = rerank(question, candidates, top_k=4)
+              assert len(hits) == 4
+              assert {hit["id"] for hit in hits} <= {hit["id"] for hit in candidates}
+              scores = [hit["rerank_score"] for hit in hits]
+              assert all(isfinite(score) for score in scores)
+              assert scores == sorted(scores, reverse=True)
+
+              def source_rank(items):
+                  return next((rank for rank, hit in enumerate(items, 1)
+                               if hit["metadata"]["policy_id"] == policy
+                               and hit["metadata"]["section_id"] == section), None)
+
+              before = source_rank(candidates[:4])
+              after = source_rank(hits)
+              assert after is not None, f"Expected {policy} section {section} in reranked top 4"
+              print(f"PASS: {question} | hybrid rank {before or '>4'}; reranked rank {after}")
+          PY
