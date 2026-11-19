@@ -1,0 +1,64 @@
+name: CI
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HF_HOME: ${{ runner.temp }}/huggingface
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r requirements.txt
+          python -m pip check
+
+      - name: Validate corpus and run pytest
+        run: |
+          python -B scripts/validate_corpus.py
+          python -B -m pytest -q -p no:cacheprovider
+
+      - name: Check minimal embed-store-retrieve loop
+        run: python -B scripts/minimal_retrieval.py
+
+      - name: Index the full corpus
+        run: python -B -m rag.pipeline index
+
+      - name: Check full-corpus retrieval without LLM calls
+        run: |
+          python -B - <<'PY'
+          from rag.retrieval import retrieve
+
+          cases = [
+              ("What is the daily meal reimbursement limit during business travel?", "expense-reimbursement", "EXP-03.1"),
+              ("How many hours of PTO do I earn for each completed month?", "pto", "PTO-03.1"),
+              ("What should I do if I lose my company laptop?", "information-security", "SEC-04"),
+              ("How many days can I work remotely per calendar week?", "remote-work", "RW-03.1"),
+          ]
+          for question, policy, section in cases:
+              hits = retrieve(question, top_k=4)
+              assert any(
+                  hit["metadata"]["policy_id"] == policy
+                  and hit["metadata"]["section_id"] == section
+                  for hit in hits
+              ), f"Expected {policy} section {section} in the top 4"
+              if policy == "remote-work":
+                  versions = {
+                      hit["metadata"]["version"] for hit in hits
+                      if hit["metadata"]["policy_id"] == policy
+                      and hit["metadata"]["section_id"] == section
+                  }
+                  assert versions == {"1.0", "2.0"}, "Both Remote Work versions must remain retrievable"
+              print(f"PASS: {question}")
+          PY

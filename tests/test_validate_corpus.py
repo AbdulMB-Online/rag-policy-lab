@@ -66,7 +66,7 @@ EXP-T01: Evidence
     assert validator.count_words(text) == 10
 
 
-@pytest.mark.parametrize("target", [499, 500, 800, 801])
+@pytest.mark.parametrize("target", [1199, 1200, 1500, 1501])
 def test_word_count_boundaries(documents, target):
     # A minimal valid document isolates the length rule from other content rules.
     text = """# Remote Work Policy v1.0
@@ -90,10 +90,10 @@ Content.
     padding = target - validator.count_words(text) + 1
     text = text.replace("Content.", " ".join(["word"] * padding), 1)
     assert validator.count_words(text) == target
-    if 500 <= target <= 800:
+    if 1200 <= target <= 1500:
         assert validator.check_structure(documents["remote-work-v1.0"], text) == target
     else:
-        with pytest.raises(ValueError, match="expected 500–800"):
+        with pytest.raises(ValueError, match="expected 1200–1500"):
             validator.check_structure(documents["remote-work-v1.0"], text)
 
 
