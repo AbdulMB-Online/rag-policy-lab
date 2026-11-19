@@ -1,8 +1,9 @@
 # Part 4: Cross-encoder reranking
 
-Status: Implemented and real model inference verified locally on 2026-11-19.
-All 100 local tests pass. Workflow lint and embedded Python syntax checks pass.
-Hosted CI and live generation with reranked context remain unverified.
+Status: Implementation and real model inference verified locally and on hosted
+CI on 2026-11-19. All 100 tests pass in both environments. Part 4 is available
+for review in [PR #4](https://github.com/AbdulMB-Online/rag-policy-lab/pull/4).
+Live generation with reranked context remains unverified.
 
 ## Objective
 
@@ -119,8 +120,17 @@ counts, CLI routing, candidate counts, bypass behavior, and index independence.
 These tests do not demonstrate pretrained-model ranking quality.
 
 `actionlint` 1.7.12 passed for the updated workflow. Both embedded CI Python
-blocks also passed AST syntax checks. No hosted run of this revision has been
-observed yet.
+blocks also passed AST syntax checks.
+
+Hosted Linux CI passed for implementation commit
+`5c8874ebfab92db0a0562e156235045c96c20a5a` in both the
+[PR run](https://github.com/AbdulMB-Online/rag-policy-lab/actions/runs/44537471567)
+and [push run](https://github.com/AbdulMB-Online/rag-policy-lab/actions/runs/44537418836).
+The PR job recorded **100 passed, 20 warnings in 7.39 seconds**, a successful
+two-question minimal loop, 49 indexed chunks, the existing vector/hybrid
+checks, and the new real cross-encoder checks. The control passage moved from
+rank 2 to 1, and all three expected corpus sections stayed at rank 1, matching
+the local results below. No LLM API calls or credentials were needed.
 
 The added CI step is configured to load the real model, promote a relevant PTO
 passage over an unrelated passage, and rerank 12 hybrid candidates down to four
@@ -183,9 +193,9 @@ remain later-stage work.
 
 ## Completion criteria
 
-Implementation, controlled tests, workflow syntax checks, and real model
-inference on the corpus are complete. Actual source ranks are recorded above.
-The remaining publication check is a passing hosted CI run through the
-branch/PR workflow. Record that result when observed. Live generation with
-reranked context has not been tested, and no retrieval-quality improvement is
-claimed from the current three-question comparison.
+Implementation, controlled tests, workflow syntax checks, real model inference
+on the corpus, and hosted CI are complete for the implementation commit above.
+Actual source ranks and hosted evidence are recorded. PR #4 remains for manual
+review and merge. Live generation with reranked context has not been tested,
+and no retrieval-quality improvement is claimed from the current three-question
+comparison.
