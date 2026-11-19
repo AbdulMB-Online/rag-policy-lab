@@ -9,8 +9,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      HF_HOME: ${{ runner.temp }}/huggingface
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
