@@ -3,7 +3,9 @@
 Status: Dataset, runner, and pytest harness implemented. Real retrieval passed
 all eight questions in every mode. The user confirmed a successful Python live
 test with eight real Foundry answers; terminal evidence was shared on
-2026-11-20. CI integration and hosted verification remain pending.
+2026-11-20. CI integration and hosted non-live verification are complete.
+The hosted live test reached Foundry but failed authentication; successful
+hosted live answers remain pending.
 
 ## Objective
 
@@ -30,7 +32,7 @@ Part 7.
 | Include two table questions and verify table metadata. | Requires retrieval of the relevant table chunk, rather than accepting a nearby prose reference. |
 | Use explicit key-information checks with alternative wording. | Keeps scoring explainable without another LLM judge or dependency. |
 | Build a temporary real-corpus index for pytest evaluation. | Avoids stale local data and leaves the working database untouched. The runner itself does not rebuild indexes. |
-| Plan CI retrieval evaluation and credentialed live answer checks. | Keeps missing credentials distinguishable from passing answer tests; workflow integration remains pending. |
+| Run CI retrieval evaluation and credentialed live answer checks separately. | Keeps missing credentials distinguishable from passing answer tests and limits Foundry settings to the live step. |
 | Preserve the planted Remote Work conflict. | The scheduling-notice question has the same answer in both versions; conflicting weekly allowances remain for Part 6. |
 | Review one file at a time. | Follows the agreed implementation workflow. |
 
@@ -64,7 +66,7 @@ matching `table_id` and `content_type="table"` for these two cases.
 | 3 | `rag/evaluation.py` | Load cases, compare retrieval modes, score answers, and print results. |
 | 4 | `tests/test_evaluation.py` | Unit tests for retrieval metrics and answer scoring. |
 | 5 | `tests/test_rag_integration.py` | Real corpus retrieval and live eight-answer evaluation. |
-| 6 | `.github/workflows/ci.yml` | Pending: provide credentials and verify hosted live checks. |
+| 6 | `.github/workflows/ci.yml` | Run non-live tests and a separate credentialed eight-answer Foundry test. |
 
 No new package, configuration file, or separate report file is planned.
 
@@ -224,9 +226,35 @@ agent's Python networking restriction remains; the user's prior successful
 eight-answer run is recorded above. No new dependencies or workflow edits were
 needed for this test split.
 
-Pending work: integrate the harness into CI and record hosted run results.
+## Hosted CI verification
 
-CI will use `OPENAI_API_KEY`, `OPENAI_BASE_URL`, and `OPENAI_MODEL` from GitHub
+Part 5 was published on `feat/part-5-evaluation-harness`, based on main commit
+`033bc514715a1196a6318088b26380342b2c9feb`. Implementation commit
+`e5cd7c31c78b633fbc5004a6245984213dfc94c1` contains the evaluation, focused tests,
+workflow integration, documentation, and the reviewed chunking-regex comment.
+A separate local `RAGPipeline` refactor was excluded. The exact proposed branch
+contents were tested against main's pipeline before publication: **163 passed,
+one live test deselected**.
+
+The [hosted push run](https://github.com/AbdulMB-Online/rag-policy-lab/actions/runs/44681902001)
+on 2026-11-20 recorded **163 passed, 1 deselected, 195 warnings in 32.87 seconds**.
+Corpus validation, the minimal loop, indexing, hybrid retrieval, and real
+cross-encoder smoke checks also passed.
+
+The separate live step ran with configured secrets, reached Foundry, and failed
+with `AuthenticationError`: HTTP 401, invalid subscription key or wrong API
+endpoint. After the user updated the Actions key/endpoint pair, attempt two
+again passed all 163 non-live tests but returned the same live HTTP 401.
+An independent direct request using only `.env` values returned HTTP 200 and a
+real model answer; no process-level settings overrode those values. Temporary
+credential/request files were removed. This narrows the issue to the hosted
+configuration or access path, rather than a generally invalid local key.
+No hosted answer pass rate was obtained. A fresh push run will verify the
+current Actions settings independently of the previous run's retry. This is
+distinct from the agent's local Python DNS failure and does not invalidate the
+user's successful local eight-answer run.
+
+CI uses `OPENAI_API_KEY`, `OPENAI_BASE_URL`, and `OPENAI_MODEL` from GitHub
 Actions secrets for live evaluation. The pytest live test reads environment
 settings or the local `.env`; when credentials are available it calls the real
 LLM. Missing credentials explicitly skip the test. API errors with configured
@@ -248,7 +276,7 @@ harder fixed cases would be needed to assess differences beyond this dataset.
 
 ## Completion criteria
 
-The dataset, runner, pytest coverage, real retrieval results, and Python live
-answer checks are complete and recorded. CI execution and hosted live evidence
-remain outstanding for submission. Publish through a branch and PR after the
-files have been reviewed individually.
+The dataset, runner, pytest coverage, real retrieval results, Python live answer
+checks, and CI integration are complete and recorded. Hosted live authentication
+and a successful eight-answer CI run remain outstanding. The feature branch is
+published; PR creation and merge remain pending review.
