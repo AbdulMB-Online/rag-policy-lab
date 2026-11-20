@@ -7,6 +7,8 @@ limit. Prose overlaps by up to 80 tokens; oversized tables raise an error.
 import re
 
 
+# Match a caption like "EXP-T01: Meal limits", a blank line, and consecutive
+# Markdown table rows starting with "|", keeping the caption and table together.
 TABLE = re.compile(
     r"(?m)(^[A-Z]+-T\d{2}: [^\n]+\n(?:[ \t]*\n)+\|[^\n]*(?:\n\|[^\n]*)*)"
 )
