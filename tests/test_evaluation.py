@@ -2,7 +2,7 @@
 
 import pytest
 
-from rag import evaluation
+from scripts import evaluate as evaluation
 
 
 CASES = evaluation.load_cases()

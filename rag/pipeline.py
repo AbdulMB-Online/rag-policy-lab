@@ -1,31 +1,45 @@
 """Index company policies or ask a question using the stored corpus and LLM."""
 
 import argparse
-from pathlib import Path
 
 from openai import APIError
 
-from rag.chunking import chunk_documents
-from rag.embeddings import embed_texts, load_model
 from rag.generation import generate_answer
-from rag.hybrid_retrieval import hybrid_retrieve
-from rag.ingestion import load_documents
+from rag.indexing import DB_PATH, index_corpus
 from rag.reranking import rerank
-from rag.retrieval import retrieve
-from rag.vector_store import DB_PATH, get_collection, store_chunks
+from rag.retrieval import hybrid_retrieve, retrieve
 
 
-def index_corpus(path: Path = DB_PATH) -> int:
-    """Store the current corpus and remove obsolete chunk IDs after a successful upsert."""
-    chunks = chunk_documents(load_documents(), load_model().tokenizer)
-    vectors = embed_texts([chunk["text"] for chunk in chunks])
-    store_chunks(chunks, vectors, path)
-    collection = get_collection(path)
-    current_ids = {chunk["id"] for chunk in chunks}
-    stale_ids = set(collection.get(include=[])["ids"]) - current_ids
-    if stale_ids:
-        collection.delete(ids=sorted(stale_ids))
-    return collection.count()
+class RAGPipeline:
+    """Coordinate retrieval, optional reranking, and generation with supplied components."""
+
+    def __init__(
+        self, retriever=None, reranker=None, generator=None, *,
+        top_k: int = 4, candidate_k: int = 12, use_reranking: bool = True,
+    ):
+        if any(type(count) is not int or count < 1 for count in (top_k, candidate_k)):
+            raise ValueError("top-k and candidate-k must be positive integers")
+        self.retriever = hybrid_retrieve if retriever is None else retriever
+        self.reranker = rerank if reranker is None else reranker
+        self.generator = generate_answer if generator is None else generator
+        self.top_k = top_k
+        self.candidate_k = max(candidate_k, top_k)
+        self.use_reranking = use_reranking
+
+    def retrieve_context(self, question: str) -> list[dict]:
+        """Return the final context without calling the LLM."""
+        if not isinstance(question, str) or not question.strip():
+            raise ValueError("Provide a nonempty question")
+        limit = self.candidate_k if self.use_reranking else self.top_k
+        chunks = self.retriever(question, top_k=limit)
+        if self.use_reranking:
+            chunks = self.reranker(question, chunks, top_k=self.top_k)
+        return chunks
+
+    def ask(self, question: str) -> str:
+        """Generate an answer from the selected policy context."""
+        return self.generator(question, self.retrieve_context(question))
+
 
 
 def main():
@@ -50,14 +64,12 @@ def main():
             count = index_corpus()
             print(f"Indexed {count} chunks in {DB_PATH}")
         else:
-            if args.top_k < 1 or args.candidate_k < 1:
-                raise ValueError("top-k and candidate-k must be positive integers")
-            search = hybrid_retrieve if args.retrieval == "hybrid" else retrieve
-            limit = args.top_k if args.no_rerank else max(args.candidate_k, args.top_k)
-            chunks = search(args.question, top_k=limit)
-            if not args.no_rerank:
-                chunks = rerank(args.question, chunks, top_k=args.top_k)
-            print(generate_answer(args.question, chunks))
+            pipeline = RAGPipeline(
+                retriever=hybrid_retrieve if args.retrieval == "hybrid" else retrieve,
+                top_k=args.top_k, candidate_k=args.candidate_k,
+                use_reranking=not args.no_rerank,
+            )
+            print(pipeline.ask(args.question))
     except (ValueError, OSError) as error:
         parser.error(str(error))
     except APIError as error:

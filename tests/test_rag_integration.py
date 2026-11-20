@@ -10,10 +10,10 @@ import pytest
 from dotenv import load_dotenv
 from openai import APIError
 
-from rag import evaluation
+from scripts import evaluate as evaluation
 from rag.generation import ROOT
-from rag.pipeline import index_corpus
-from rag.vector_store import get_collection
+from rag.indexing import index_corpus
+from rag.indexing import get_collection
 
 
 CASES = evaluation.load_cases()

@@ -6,9 +6,9 @@ embedding model is loaded and the real index under .venv/chroma is untouched.
 
 import pytest
 
-from rag import hybrid_retrieval, retrieval
-from rag.hybrid_retrieval import RRF_CONSTANT, hybrid_retrieve
-from rag.vector_store import store_chunks
+from rag import retrieval
+from rag.retrieval import RRF_CONSTANT, hybrid_retrieve
+from rag.indexing import store_chunks
 
 
 @pytest.fixture
@@ -58,8 +58,8 @@ def fake_lists(monkeypatch):
         return Lists.keyword[:top_k]
 
     Lists.calls = []
-    monkeypatch.setattr(hybrid_retrieval, "retrieve", fake_retrieve)
-    monkeypatch.setattr(hybrid_retrieval, "keyword_search", fake_keyword)
+    monkeypatch.setattr(retrieval, "retrieve", fake_retrieve)
+    monkeypatch.setattr(retrieval, "keyword_search", fake_keyword)
     return Lists
 
 

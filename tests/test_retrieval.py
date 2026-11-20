@@ -5,7 +5,7 @@ from unittest.mock import Mock
 import pytest
 
 from rag import retrieval
-from rag.vector_store import get_collection, store_chunks
+from rag.indexing import get_collection, store_chunks
 
 
 @pytest.fixture

@@ -36,7 +36,7 @@ jobs:
       - name: Compare vector and hybrid retrieval without LLM calls
         run: |
           python -B - <<'PY'
-          from rag.hybrid_retrieval import hybrid_retrieve
+          from rag.retrieval import hybrid_retrieve
           from rag.retrieval import retrieve
 
           cases = [
@@ -80,7 +80,7 @@ jobs:
           python -B - <<'PY'
           from math import isfinite
 
-          from rag.hybrid_retrieval import hybrid_retrieve
+          from rag.retrieval import hybrid_retrieve
           from rag.reranking import MODEL, rerank
 
           controls = [
