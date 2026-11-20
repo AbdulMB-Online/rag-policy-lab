@@ -22,10 +22,10 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip check
 
-      - name: Validate corpus and run pytest
+      - name: Validate corpus and run tests without LLM calls
         run: |
           python -B scripts/validate_corpus.py
-          python -B -m pytest -q -p no:cacheprovider
+          python -B -m pytest -q -s -k 'not live' -p no:cacheprovider
 
       - name: Check minimal embed-store-retrieve loop
         run: python -B scripts/minimal_retrieval.py
@@ -115,3 +115,12 @@ jobs:
               assert after is not None, f"Expected {policy} section {section} in reranked top 4"
               print(f"PASS: {question} | hybrid rank {before or '>4'}; reranked rank {after}")
           PY
+
+      - name: Evaluate eight live Foundry answers
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+        run: >-
+          python -B -m pytest tests/test_rag_integration.py::test_live_answers
+          -q -s -rs --tb=short -p no:cacheprovider

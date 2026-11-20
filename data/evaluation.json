@@ -1,0 +1,124 @@
+[
+  {
+    "id": "E01",
+    "question": "What is the daily meal reimbursement limit during business travel?",
+    "expected_answer": "$75 per employee per calendar day.",
+    "expected_chunk_ids": ["expense-reimbursement-v1.0:EXP-03.1:0"],
+    "expected_table_id": "EXP-T01",
+    "answer_checks": {
+      "meal limit": [
+        "\\$\\s*75(?:\\.00)?\\b(?![\\d.])",
+        "(?<![\\w.])75(?:\\.00)?\\s*(?:USD|dollars)\\b",
+        "\\bUSD\\s*75(?:\\.00)?\\b(?![\\d.])"
+      ],
+      "per employee": [
+        "\\bper\\s+(?:employee|person)\\b",
+        "\\b(?:each|every)\\s+employee\\b"
+      ],
+      "daily limit": [
+        "\\bper\\s+(?:calendar\\s+)?day\\b",
+        "\\bdaily\\b",
+        "\\b(?:each|every)\\s+(?:calendar\\s+)?day\\b"
+      ]
+    }
+  },
+  {
+    "id": "E02",
+    "question": "How soon must I submit an expense claim?",
+    "expected_answer": "Within 30 calendar days after the expense date.",
+    "expected_chunk_ids": ["expense-reimbursement-v1.0:EXP-04:0"],
+    "expected_table_id": null,
+    "answer_checks": {
+      "submission deadline": [
+        "(?<![\\w.])(?:30|thirty)\\s+calendar\\s+days?\\b"
+      ]
+    }
+  },
+  {
+    "id": "E03",
+    "question": "How much PTO do I earn each completed month?",
+    "expected_answer": "10 hours per completed month.",
+    "expected_chunk_ids": ["pto-v1.0:PTO-03.1:0"],
+    "expected_table_id": null,
+    "answer_checks": {
+      "accrual amount": [
+        "(?<![\\w.])(?:10|ten)\\s+(?:PTO\\s+)?(?:hours?|hrs?)\\b"
+      ],
+      "monthly accrual": [
+        "\\b(?:each|per|every|a)\\s+(?:completed\\s+)?month\\b",
+        "\\bmonthly\\b"
+      ]
+    }
+  },
+  {
+    "id": "E04",
+    "question": "How many unused PTO hours can carry into the next year?",
+    "expected_answer": "Up to 40 hours.",
+    "expected_chunk_ids": ["pto-v1.0:PTO-03.1:0"],
+    "expected_table_id": null,
+    "answer_checks": {
+      "carryover limit": [
+        "(?<![\\w.])(?:40|forty)\\s+(?:unused\\s+)?(?:PTO\\s+)?(?:hours?|hrs?)\\b"
+      ]
+    }
+  },
+  {
+    "id": "E05",
+    "question": "For six consecutive scheduled workdays of PTO, what notice and approvals are required?",
+    "expected_answer": "At least 10 business days of notice, with approval from the manager and People Operations.",
+    "expected_chunk_ids": ["pto-v1.0:PTO-03.2:0"],
+    "expected_table_id": "PTO-T01",
+    "answer_checks": {
+      "notice period": [
+        "(?<![\\w.])(?:10|ten)\\s+(?:business|working)\\s+days?\\b"
+      ],
+      "manager approval": ["\\bmanager\\b"],
+      "People Operations approval": ["\\bPeople\\s+(?:Operations|Ops)\\b"]
+    }
+  },
+  {
+    "id": "E06",
+    "question": "When and where should I report a lost company laptop?",
+    "expected_answer": "Immediately, through the IT Security incident portal.",
+    "expected_chunk_ids": ["information-security-v1.0:SEC-04:0"],
+    "expected_table_id": null,
+    "answer_checks": {
+      "immediate reporting": [
+        "\\bimmediately\\b",
+        "\\bright away\\b",
+        "\\bwithout delay\\b"
+      ],
+      "incident reporting portal": [
+        "\\b(?:IT\\s+Security\\s+)?incident\\s+(?:reporting\\s+)?portal\\b",
+        "\\bIT\\s+Security\\s+portal\\b"
+      ]
+    }
+  },
+  {
+    "id": "E07",
+    "question": "After how much inactivity must my company laptop automatically lock?",
+    "expected_answer": "Five minutes.",
+    "expected_chunk_ids": ["information-security-v1.0:SEC-03.2:0"],
+    "expected_table_id": null,
+    "answer_checks": {
+      "automatic lock timeout": [
+        "(?<![\\w.])(?:5|five)\\s+(?:minutes?|mins?)\\b"
+      ]
+    }
+  },
+  {
+    "id": "E08",
+    "question": "How far ahead must I request a recurring remote-work arrangement?",
+    "expected_answer": "At least five business days before the proposed start date.",
+    "expected_chunk_ids": [
+      "remote-work-v1.0:RW-04:0",
+      "remote-work-v2.0:RW-04:0"
+    ],
+    "expected_table_id": null,
+    "answer_checks": {
+      "request notice period": [
+        "(?<![\\w.])(?:5|five)\\s+(?:business|working)\\s+days?\\b"
+      ]
+    }
+  }
+]
