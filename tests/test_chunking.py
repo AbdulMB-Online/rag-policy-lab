@@ -5,7 +5,7 @@ No model downloads; real BGE tokenization is exercised by corpus integration.
 
 import pytest
 
-from rag.chunking import chunk_documents
+from rag.ingestion import chunk_documents
 
 
 class WordTokenizer:

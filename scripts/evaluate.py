@@ -3,15 +3,20 @@
 import argparse
 import json
 import re
+import sys
 from pathlib import Path
+
+# Support both python -m scripts.evaluate and python scripts/evaluate.py.
+if not __package__:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from openai import APIError
 
 from rag.generation import generate_answer
-from rag.hybrid_retrieval import hybrid_retrieve
+from rag.retrieval import hybrid_retrieve
 from rag.reranking import rerank
 from rag.retrieval import retrieve
-from rag.vector_store import DB_PATH
+from rag.indexing import DB_PATH
 
 
 CASES_PATH = Path(__file__).resolve().parents[1] / "data" / "evaluation.json"

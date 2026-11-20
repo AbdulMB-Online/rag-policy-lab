@@ -2,8 +2,8 @@
 
 import pytest
 
-from rag.keyword_search import keyword_search
-from rag.vector_store import store_chunks
+from rag.retrieval import keyword_search
+from rag.indexing import store_chunks
 
 
 def chunk(identifier, text, section_id, table_id=None):

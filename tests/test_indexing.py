@@ -1,8 +1,11 @@
-"""Storage checks with temporary Chroma databases and fixed vectors."""
+"""Storage and index-refresh checks with temporary Chroma and fixed vectors."""
+
+from unittest.mock import Mock
 
 import pytest
 
-from rag.vector_store import get_collection, store_chunks
+from rag import indexing
+from rag.indexing import get_collection, store_chunks
 
 
 @pytest.fixture
@@ -63,3 +66,32 @@ def test_collection_from_another_embedding_model_is_rejected(tmp_path):
     get_collection(tmp_path).modify(metadata={"embedding_model": "another-model"})
     with pytest.raises(ValueError, match="different embedding model"):
         get_collection(tmp_path)
+
+
+@pytest.fixture
+def index_inputs(monkeypatch, chunks):
+    """Keep Chroma real; supply fixed chunking and embedding results."""
+    monkeypatch.setattr(indexing, "load_documents", Mock(return_value=[{"id": "source"}]))
+    monkeypatch.setattr(indexing, "load_model", Mock(return_value=Mock(tokenizer="test-tokenizer")))
+    monkeypatch.setattr(indexing, "chunk_documents", Mock(return_value=chunks[:2]))
+    monkeypatch.setattr(indexing, "embed_texts", Mock(return_value=[[1.0, 0.0], [0.0, 1.0]]))
+    return chunks[:2]
+
+
+def test_index_refresh_removes_stale_chunks_and_repeated_runs_keep_both_versions(tmp_path, index_inputs):
+    stale = {"id": "obsolete", "text": "Old chunk layout", "metadata": {"version": "0.0"}}
+    store_chunks([stale], [[1.0, 0.0]], tmp_path)
+    for _ in range(2):
+        assert indexing.index_corpus(tmp_path) == 2
+        assert set(get_collection(tmp_path).get()["ids"]) == {"remote-v1", "remote-v2"}
+    indexing.chunk_documents.assert_called_with([{"id": "source"}], "test-tokenizer")
+    indexing.embed_texts.assert_called_with([chunk["text"] for chunk in index_inputs])
+
+
+def test_failed_index_write_does_not_delete_existing_chunks(tmp_path, monkeypatch, index_inputs):
+    stale = {"id": "obsolete", "text": "Existing evidence", "metadata": {"version": "0.0"}}
+    store_chunks([stale], [[1.0, 0.0]], tmp_path)
+    monkeypatch.setattr(indexing, "store_chunks", Mock(side_effect=RuntimeError("Write failed")))
+    with pytest.raises(RuntimeError, match="Write failed"):
+        indexing.index_corpus(tmp_path)
+    assert get_collection(tmp_path).get()["ids"] == ["obsolete"]
